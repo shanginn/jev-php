@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Shanginn\Jev\Tests;
 
+use function PHPStan\Testing\assertType;
+
 use Shanginn\Jev\Jev;
 use Shanginn\Jev\Question\Choice;
 use Shanginn\Jev\Tests\Unit\Department;
 use Shanginn\Jev\Tests\Unit\Triage;
-
-use function PHPStan\Testing\assertType;
 
 /** Analysed by PHPStan; deliberately never executed as an API test. */
 function verifyPublicReturnTypes(Jev $jev): void
