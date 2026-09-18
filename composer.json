@@ -13,6 +13,7 @@
     "scripts": {
         "test": "phpunit",
         "test:live": "php tests/live.php",
+        "test:examples": "php tests/examples.php",
         "analyse": "phpstan analyse --memory-limit=512M",
         "format": "php-cs-fixer fix",
         "format:check": "php-cs-fixer fix --dry-run --diff",

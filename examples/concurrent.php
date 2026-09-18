@@ -13,11 +13,14 @@ use Shanginn\Jev\Question\Noul;
 $jev = require __DIR__ . '/bootstrap.php';
 
 $deadline = new TimeoutCancellation(30);
-$question = new Noul('Is this a refund request?');
+$question = new Noul('В сообщении просят вернуть деньги?');
 $futures = [];
-foreach (['Please refund my payment.', 'How do I change my password?'] as $index => $state) {
+foreach (['Пожалуйста, верните деньги за заказ.', 'Как изменить пароль?'] as $index => $state) {
     $futures[$index] = async(fn() => $jev->noul($state, $question, cancellation: $deadline));
 }
-foreach (await($futures, $deadline) as $index => $answer) {
-    echo $index . ': ' . $answer->noul . PHP_EOL;
+$answers = await($futures, $deadline);
+foreach ($answers as $index => $answer) {
+    echo 'Сообщение ' . ($index + 1) . ': вероятность запроса на возврат — ' . $answer->noul . PHP_EOL;
 }
+
+return $answers;

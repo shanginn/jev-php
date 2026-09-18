@@ -15,11 +15,11 @@ use Shanginn\Jev\Request\{RequestOptions, Trace};
 final readonly class LiveTriage
 {
     public function __construct(
-        #[Choice('Which support department handles this request?', ['billing' => 'Payments, invoices and refunds', 'technical' => 'Software bugs and crashes'])]
+        #[Choice('Какой отдел поддержки должен обработать обращение?', ['billing' => 'Платежи, счета и возврат денег', 'technical' => 'Ошибки в работе программы and crashes'])]
         public ChoiceAnswer $department,
-        #[Noul('Does the customer explicitly request a refund?')]
+        #[Noul('Клиент прямо просит вернуть деньги?')]
         public NoulAnswer $refund,
-        #[Score('How urgent is this support ticket?', ['Routine', 'Urgent', 'Critical outage'])]
+        #[Score('Насколько срочно нужно обработать обращение?', ['Обычное обращение', 'Срочное обращение', 'Критический сбой'])]
         public ScoreAnswer $urgency,
     ) {}
 }
@@ -36,26 +36,26 @@ try {
     $jev = require dirname(__DIR__) . '/examples/bootstrap.php';
     $deadline = new TimeoutCancellation(60);
     $result = $jev->evaluateWithResponse(
-        ['ticket' => 'I was charged twice for the same invoice. Please refund the duplicate payment.'],
+        ['ticket' => 'С меня дважды списали деньги по одному счёту. Пожалуйста, верните повторный платёж.'],
         LiveTriage::class,
         new RequestOptions(sessionId: 'jev-php-live-smoke', trace: new Trace(traceName: 'sdk-live-test')),
         $deadline,
     );
-    ensure($result->value->department->choice === 'billing', 'Unexpected department.');
-    ensure($result->value->refund->isYes(0.5), 'Refund request not detected.');
-    ensure($result->response->usage->inputTokens > 0, 'Missing usage.');
+    ensure($result->value->department->choice === 'billing', 'Выбран неожиданный отдел.');
+    ensure($result->value->refund->isYes(0.5), 'Запрос на возврат денег не распознан.');
+    ensure($result->response->usage->inputTokens > 0, 'Не получены сведения об использовании токенов.');
     echo json_encode(['test' => 'typed_batch', 'model' => $result->response->model, 'provider' => $result->response->provider, 'id' => $result->response->id, 'department' => $result->value->department->choice, 'refund_probability' => $result->value->refund->noul, 'urgency' => $result->value->urgency->score, 'usage' => $result->response->usage], JSON_THROW_ON_ERROR) . PHP_EOL;
 
-    $question = new Noul('Is the message asking for a refund?');
+    $question = new Noul('В сообщении просят вернуть деньги?');
     $answers = await([
-        async(fn() => $jev->noul('Please refund my payment.', $question, cancellation: $deadline)),
-        async(fn() => $jev->noul('How do I change my password?', $question, cancellation: $deadline)),
+        async(fn() => $jev->noul('Пожалуйста, верните деньги за заказ.', $question, cancellation: $deadline)),
+        async(fn() => $jev->noul('Как изменить пароль?', $question, cancellation: $deadline)),
     ], $deadline);
-    ensure($answers[0]->noul > $answers[1]->noul, 'Concurrent results not separated.');
+    ensure($answers[0]->noul > $answers[1]->noul, 'Результаты положительного и отрицательного примеров не различаются ожидаемым образом.');
     echo json_encode(['test' => 'concurrent_noul', 'positive' => $answers[0]->noul, 'negative' => $answers[1]->noul], JSON_THROW_ON_ERROR) . PHP_EOL;
-    echo "Live tests passed.\n";
+    echo "Проверки реального API пройдены.\n";
 } catch (Throwable $error) {
-    // No stack traces or raw provider payloads: credentials never enter the report.
-    fwrite(STDERR, 'Live test failed: ' . ($error instanceof JevException ? $error->getMessage() : $error::class) . PHP_EOL);
+    // Не печатаем стек вызовов и необработанные ответы провайдера, чтобы не раскрыть секреты.
+    fwrite(STDERR, 'Ошибка проверки реального API: ' . ($error instanceof JevException ? $error->getMessage() : $error::class) . PHP_EOL);
     exit(1);
 }

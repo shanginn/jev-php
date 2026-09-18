@@ -6,7 +6,7 @@ use Shanginn\Jev\Jev;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-// Only the examples read .env. Library consumers supply their own configuration.
+// Только примеры читают .env. В приложении передавайте настройки самостоятельно.
 $key = getenv('OPENROUTER_API_KEY') ?: '';
 $env = dirname(__DIR__) . '/.env';
 if ($key === '' && is_file($env)) {
@@ -17,7 +17,7 @@ if ($key === '' && is_file($env)) {
     }
 }
 if ($key === '') {
-    throw new RuntimeException('Set OPENROUTER_API_KEY in the environment or ignored .env file.');
+    throw new RuntimeException('Укажите OPENROUTER_API_KEY в окружении или локальном файле .env, исключённом из Git.');
 }
 
 return Jev::create($key);

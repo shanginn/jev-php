@@ -15,7 +15,17 @@ enum Department: string
     case Sales = 'sales';
 }
 
-$answer = $jev->choice('I was charged twice. Please refund the duplicate payment.', Choice::fromEnum('Which team should handle the ticket?', Department::class));
-$department = $answer->enum(Department::class); // Department, inferred by PHPStan and IDEs.
-echo $department->value . PHP_EOL;
-echo 'Confidence: ' . ($answer->confidence ?? 'not supplied') . PHP_EOL;
+$answer = $jev->choice('С меня дважды списали деньги за один заказ. Пожалуйста, верните повторный платёж.', Choice::fromEnum('Какой отдел должен обработать обращение?', Department::class, [
+    'billing' => 'Платежи, счета и возврат денег',
+    'technical' => 'Ошибки в работе программы',
+    'sales' => 'Тарифы, цены и новые покупки',
+]));
+$department = $answer->enum(Department::class); // PHPStan и IDE определяют тип Department.
+echo 'Отдел: ' . match ($department) {
+    Department::Billing => 'бухгалтерия',
+    Department::Technical => 'техническая поддержка',
+    Department::Sales => 'продажи',
+} . PHP_EOL;
+echo 'Уверенность модели: ' . ($answer->confidence ?? 'не передана') . PHP_EOL;
+
+return $answer;
