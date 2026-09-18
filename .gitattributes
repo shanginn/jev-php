@@ -1,0 +1,11 @@
+/.github export-ignore
+/.env.example export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/.dockerignore export-ignore
+/.php-cs-fixer.dist.php export-ignore
+/phpstan.neon export-ignore
+/phpunit.xml export-ignore
+/composer.lock export-ignore
+/tests export-ignore
+/tools export-ignore
